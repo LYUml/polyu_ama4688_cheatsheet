@@ -1,0 +1,434 @@
+\documentclass{article}
+
+% 页面设置：横版 A4，极小边距 5mm
+\usepackage[a4paper, landscape, margin=5mm]{geometry}
+\usepackage{multicol}
+\usepackage{amsmath, amssymb}
+\usepackage{titlesec}
+\usepackage{ctex} 
+\usepackage{xcolor}
+
+% 定义护眼且对比度高的层级颜色
+\definecolor{sectColor}{RGB}{0, 73, 144}     % 深海蓝 - 对应大章
+\definecolor{subSectColor}{RGB}{180, 30, 30} % 砖红色 - 对应考点
+\definecolor{itemColor}{RGB}{0, 100, 0}      % 深绿色 - 对应关键步骤/概念
+
+% 设置提升可读性的定制字号 (6.5pt字号，8pt行距)
+\newcommand{\csfont}{\fontsize{5pt}{5pt}\selectfont}
+
+% 标题格式重构：加入颜色、下划线和微小间距
+\titleformat{\section}{\csfont\bfseries\color{sectColor}}{}{0em}{}[\titlerule]
+\titleformat{\subsection}{\csfont\bfseries\color{subSectColor}}{}{0em}{}
+\titleformat{\subsubsection}{\csfont\itshape\bfseries}{}{0em}{}
+
+% 标题垂直间距控制 (左, 上, 下)
+\titlespacing*{\section}{0pt}{4pt}{2pt}
+\titlespacing*{\subsection}{0pt}{3pt}{1pt}
+\titlespacing*{\subsubsection}{0pt}{1pt}{1pt}
+
+% 段落间距控制：恢复呼吸感，彻底抛弃 itemize
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{2.5pt} 
+\setlength{\columnsep}{4mm} 
+
+% 自定义小标题样式，替代 itemize
+\newcommand{\myitem}[1]{\textcolor{itemColor}{\textbf{#1}}}
+
+\begin{document}
+\csfont
+\pagestyle{empty}
+
+\begin{multicols*}{4}
+
+\section*{AMA4688} %
+
+\subsection*{Chapter 1: 离散事件模拟 (DES)} %
+\myitem{核心逻辑:} 现实系统 $\rightarrow$ 逻辑模型 $\rightarrow$ 随机数驱动 $\rightarrow$ 状态转移。\\ %
+\myitem{核心考点：Trace Table (填表题)} \\ %
+\textbf{Step 1: 随机数分配} (按概率划定 00-99 区间，左闭右开)。\\ %
+\textbf{Step 2: 状态转移逻辑} (看清题目给的是条件概率还是独立概率)。\\ %
+\textbf{Step 3: 逐行模拟与计算} (按时间步推进，最后记录累计量并求平均)。\\ %
+\myitem{常见应用场景:} 股票价格预测 (Stock Price)；银行/客服排队系统 (Queueing)；库存管理 (Inventory)。 %
+
+\section*{Chapter 2: 随机数的生成与检验} %
+
+\subsection*{1. 伪随机数生成 (Generation) - 5大经典方法} %
+\textbf{种子乘子法 (Seed and multiplier method):} 逻辑：当前种子 $\times$ 乘子 (Multiplier) = 乘积。提取：截取乘积的中间几位数作为下一个伪随机数。\\ %
+\textbf{平方取中法 (Mid-square method):} 逻辑：当前种子平方 ($Seed^2$)。提取：截取平方结果的中间几位数作为下一个伪随机数。\\ %
+\textbf{乘法同余法 (Multiplicative congruential method):} 公式：$X_{n+1} = (kX_n) \pmod m$。\\ %
+\textbf{混合同余法 (Mixed congruential method):} 公式：$X_{n+1} = (kX_n + C) \pmod m$ (最标准的 LCG，有乘数 $k$ 也有增量 $C$)。\\ %
+\textbf{加法同余法 (Additive congruential method):} 公式：$X_{n+1} = (X_n + X_{n-1}) \pmod m$。\\ %
+\textbf{转换为(0,1)区间的小数要求:} 同余法算出的 $X_i$ 是整数，最终必须除以 $m$（即 $U_n = X_n / m$）。 %
+
+\subsection*{2. 随机数与分布检验 (6大经典检验方法)} %
+\myitem{1. 游程检验 (Runs test) [查独立性/随机性]} \\ %
+\textbf{什么是游程 $R$？ (核心概念):} 游程就是序列中连续相同符号的“块”。找断点：只要数字变脸（比如从1变0，或0变1），就切一刀算一个新游程。\\ %
+\textit{例子：序列 1 1 0 0 0 1 0，切分后为 [1 1] [0 0 0] [1] [0]，共 4 个游程，即 $R=4$}\\ %
+\textbf{均值公式：}$\mu_R = \frac{2n_1n_2}{n} + 1$。 \textbf{方差公式：}$\sigma_R^2 = \frac{2n_1n_2(2n_1n_2 - n)}{n^2(n-1)}$。 \\ %
+\textbf{判断标准：}计算 $Z = \frac{R - \mu_R}{\sqrt{\sigma_R^2}}$ 与 $1.96$ 比较。
+
+\myitem{2. 卡方检验 ($\chi^2$ test) [查均匀性/拟合优度]} \\ %
+\textbf{本质就是“找茬”：}衡量“现实”与“理想”的差距。\\ %
+\textbf{$O_i$ (Observed)：}现实观测频数（你实际查出来的个数）。\textbf{$E_i$ (Expected)：}理论期望频数（$E = \text{总样本} \times \text{理论概率}$）。\\ %
+\textbf{公式逻辑：}$\chi^2 = \sum \frac{(O_i - E_i)^2}{E_i}$。 \textit{为什么要平方？} 消除正负抵消，放大严重误差。 \textit{为什么除以 $E_i$？} 计算“相对误差”，让误差变得公平可比。\\ %
+\textbf{自由度：}$df = k - 1 - \text{估计参数个数}$。\\ %
+\textbf{判定规则：}查 $\chi^2$ 表。若算出的 $\chi^2$ 大于 临界值，则拒绝 $H_0$（误差太大）。 %
+
+\myitem{3. K-S 检验 (Kolmogorov-Smirnov test) [查均匀性]} \\ %
+\textbf{核心逻辑：}计算样本实际累积分布与理论累积分布的最大偏差 $D$。\\ %
+\textbf{避坑 1：}计算偏差前必须先排序 (从小到大)！。\\ %
+\textbf{计算步骤：}算出 $i/N - Y_i$ 和 $Y_i - (i-1)/N$，找出其中最大的绝对值即为 $D$。\\ %
+\textbf{判定规则 (怎么查表？怎么定生死？):} 查 K-S 临界值表，根据样本量 $N$ 和显著性水平 $\alpha$ (如 0.05) 找到临界值。“偏差太大就拒绝”。若 $D > \text{临界值}$：偏离理论分布太远，拒绝 $H_0$（不服从均匀分布）。若 $D < \text{临界值}$：偏差在容忍范围内，不拒绝 $H_0$（服从均匀分布）。 %
+
+\myitem{4. 相关性检验 \& 5. Good's 序列检验} \\ %
+(录音暗示不考，战略性放弃)。 %
+
+\myitem{6. 双样本秩和检验 (Two-sample rank sum test)} \\ %
+\textbf{逻辑：}检验真实系统数据与模拟数据是否来自同一分布（常用来证明模型有效）。\\ %
+\textbf{考试标准计算 4 步走 (必背):} \\ %
+\textbf{Step 1: 合并并排名：}把两组数据混在一起从小到大排队，打上名次 (Rank)。\\ %
+\textbf{Step 2: 算秩和 $H$：}挑其中一组（通常是模拟数据 $X$），把它们的名次加起来就是秩和 $H$。\\ %
+\textbf{Step 3: 算理论均值与方差 (极其重要，必考公式)：}均值: $\mu = \frac{n(n+m+1)}{2}$；方差: $\sigma^2 = \frac{nm(n+m+1)}{12}$ (m=真实数据的数量，n=模拟数据的数量)。\\ %
+\textbf{Step 4: 算 $Z$ 值与连续性修正 (最容易扣分)：}离散排名转为连续的正态分布，必须做修正！ 如果算出的 $H > \mu$：把它往回拉，用 $H - 0.5$ 去算。如果算出的 $H < \mu$：把它往回推，用 $H + 0.5$ 去算。公式：$Z = \frac{H_{\text{修正后}} - \mu}{\sqrt{\sigma^2}}$。\\ %
+\textbf{判定结论：}如果 $|Z| < 1.96$ (设 $\alpha=0.05$)，不拒绝 $H_0$，说明两组排名混合得很自然，模型靠谱 (Valid)！
+
+\section*{Chapter 3: 随机变量的生成} %
+
+\subsection*{1. 逆变换法 (Inverse Transform Method)} %
+\textbf{核心原理：}因为任何变量的 CDF 输出值 $F(X)$ 必定服从 $U[0,1]$ 均匀分布，所以令 $F(X) = U$ 即可反解出 $X$。\\ %
+\textbf{连续型分布计算：标准 3 步走 (大题必考):} \\ %
+\textbf{Step 1: 求 CDF (积分)：}如果题目只给概率密度函数 $f(x)$，先算积分得到累积分布 $F(x) = \int_{-\infty}^x f(t)dt$。*(若题目已给 $F(x)$ 则跳过)*。\\ %
+\textbf{Step 2: 令 $F(x) = U$：}把等式右边强行设为介于 0 到 1 之间的均匀随机数 $U$。\\ %
+\textbf{Step 3: 反解出 $x$：}通过代数变换，把 $x$ 挪到等式一边，得到 $x = F^{-1}(U)$。\\ %
+\textbf{经典分布公式 (直接套用):} \\ %
+\textbf{指数分布 (Exponential):} 推导：$F(x) = 1 - e^{-\lambda x} = U \rightarrow e^{-\lambda x} = 1 - U$。公式：$x = -\frac{1}{\lambda} \ln(1 - U)$ *(注: 代码实操中常把 $1-U$ 直接写成 $U$)*。\\ %
+\textbf{韦伯分布 (Weibull) 等：}只要能解出反函数，都直接套用这三步。 %
+
+\subsection*{2. 拒绝-接受法 (Rejection Method)} %
+\textbf{前期准备:} 求常数 $K$: $\int_a^b f(x) dx = 1$。 求最大值 $c$: $f(x)$ 在区间上的最大值。\\ %
+\textbf{核心 4 步走 (简答题必写):} 1. 取随机数 $U_1, U_2$。 2. 横坐标 $X_0 = a + U_1(b - a)$。 3. 纵坐标 $Y_0 = c \cdot U_2$。 4. 判断: 若 $Y_0 \le f(X_0)$ 则接受，否则拒绝。\\ %
+\textbf{高阶概率计算:} 单次成功率 $p = \frac{1}{c(b-a)}$。 负二项分布: $\binom{n-1}{r-1} p^r (1-p)^{n-r}$。 %
+
+\subsection*{3. 逆变换法与拒绝-接受法对比 (Comparison)} %
+\textbf{Inverse Transform:} \textbf{Pros:} Better when PDF lacks analytical form and relies on numerical approx. \textbf{Cons:} Requires PDF integration and inversion, which is often overly complex or has no analytical solution.\\ %
+\textbf{Rejection Method:} \textbf{Pros:} Only requires PDF (no integration/inversion). Easier than tabular approx when CDF is non-invertible. \textbf{Cons:} Low efficiency (needs at least 2 uniform RNs $U_1, U_2$ per trial). Due to rejections, total RNs per output is usually $>2$. \textbf{Limits:} PDF must be bounded (0 outside $[a, b]$). Long-tail distributions require truncation, introducing numerical error. %
+
+\subsection*{4. 正态分布的生成} %
+\myitem{中心极限定理法 (CLT)} \\ %
+\textbf{Core:} Sum of i.i.d. random variables approaches a Normal distribution as $n \to \infty$.独立同分布的随机变量之和，当 $n$ 足够大时，其分布趋向于正态分布。\\ %
+\textbf{数学推导过程:} \\ %
+1. 均匀分布基础参数 $[a, b]$: 概率密度: $f(R) = \frac{1}{b-a}$ ($a \le R \le b$)。期望: $E[R] = \int_a^b \frac{R}{b-a} dR = \frac{a+b}{2}$。方差: $\text{Var}(R) = E[R^2] - (E[R])^2 = \frac{(b-a)^2}{12}$。\\ %
+2. 标准均匀分布特性 $[0, 1]$: 令 $a=0, b=1$，代入上式得 $E[R^2] = \frac{1}{3} $,$E[R] = \frac{1}{2}$，$\text{Var}(R) = \frac{1}{12}$。\\ %
+3. 随机数求和参数: 设总和 $T = R_1 + R_2 + \dots + R_n$。期望相加: $E[T] = \sum_{i=1}^n E[R_i] = \frac{n}{2}$。方差相加: $\text{Var}(T) = \sum_{i=1}^n \text{Var}(R_i) = \frac{n}{12}$。\\ %
+4. 分布转换与等式建立: 依据 CLT 对 $T$ 标准化: $\frac{T - n/2}{\sqrt{n/12}} \approx Z$。目标正态变量 $Y$ 的标准化: $Z = \frac{Y - \mu}{\sigma}$。联立解出通用公式: $Y = \mu + \sigma \frac{T - n/2}{\sqrt{n/12}}$。\\ %
+\textbf{工程化简 ($n=12$):} 原理：令 $n=12$，则方差 $\text{Var}(T) = \frac{12}{12} = 1$，分母 $\sqrt{n/12} = 1$。此举可省去复杂的开方与除法运算。公式：$Y = \mu + \sigma (\sum_{i=1}^{12} R_i - 6)$。\\ %
+\textbf{算法执行步骤:} Step 1 (生成与求和)：生成 12 个 $U(0,1)$ 随机数并计算总和 $T = \sum_{i=1}^{12} R_i$。 Step 2 (标准化)：计算 $Z = T - 6$，得到均值为 0、方差为 1 的标准正态变量。 Step 3 (线性变换)：计算 $Y = \mu + \sigma Z$，得到目标正态分布。 %
+
+\myitem{Box-Muller 变换 (直接坐标变换法)} \\ %
+\textbf{核心原理：}通过二维极坐标系转换，将两个独立的均匀分布随机数精确映射为两个独立的标准正态分布随机数。\\ %
+\textbf{推导步骤:} Step 1 (坐标转换)：将直角坐标 $(Z_1, Z_2)$ 转为极坐标 $(B, \theta)$，即 $Z_1 = B \cos\theta, Z_2 = B \sin\theta$。 Step 2 (确定半径 $B$)：因 $Z_i \sim N(0,1)$，平方和 $B^2 = Z_1^2 + Z_2^2$ 服从 $\chi^2(2)$ 分布（等价于 $\lambda=1/2$ 的指数分布）。依据逆变换法 $B^2 = -2\ln(R_1)$，解得 $B = (-2\ln R_1)^{0.5}$。 Step 3 (确定角度 $\theta$)：由于二维正态分布的对称性，角度在 $[0, 2\pi]$ 内均匀分布，故 $\theta = 2\pi R_2$。 Step 4 (还原直角坐标)：将 $B$ 和 $\theta$ 代回 Step 1 方程。\\ %
+\textbf{公式 (输入 $R_1, R_2 \sim U(0,1)$):} $Z_1 = (-2\ln R_1)^{0.5} \cos(2\pi R_2)$； $Z_2 = (-2\ln R_1)^{0.5} \sin(2\pi R_2)$。 %
+
+\myitem{极坐标法 (Marsaglia Polar Method)} \\ %
+\textbf{核心动机：}Box-Muller 变换中的 $\sin$ 和 $\cos$ 函数计算缓慢。本方法利用单位圆内的拒绝采样，通过几何边长比例直接替换三角函数。\\ %
+\textbf{算法执行步骤:} \\
+Step 1：生成两个独立的均匀随机数 $V_1, V_2 \sim U[-1, 1]$。 \\Step 2：计算原点距离的平方 $W = V_1^2 + V_2^2$。 \\Step 3 (拒绝条件)：若 $W > 1$，则拒绝该点，返回 Step 1 重新生成。*(确保点严格落在单位圆内)*。 \\Step 4 (变量替换)：若 $W \le 1$，此时 $W \sim U(0,1)$。代入变换公式：$Z_1 = V_1 \sqrt{\frac{-2\ln W}{W}}$, $Z_2 = V_2 \sqrt{\frac{-2\ln W}{W}}$。\\ %
+\textbf{与 Box-Muller 的对应关系:} $\cos(2\pi R_2) \equiv \frac{V_1}{\sqrt{V_1^2 + V_2^2}} = \frac{V_1}{\sqrt{W}}$ (直角三角形邻边比斜边)。 $\sin(2\pi R_2) \equiv \frac{V_2}{\sqrt{V_1^2 + V_2^2}} = \frac{V_2}{\sqrt{W}}$ (直角三角形对边比斜边)。 随机数 $R_1 \equiv W$ (已证明在 $W \le 1$ 时条件均匀分布)。 %
+
+\textbf{必考推导：$W = V_1^2 + V_2^2$ 的分布证明，证明只要$W \le 1$} \\ %
+\textbf{目标：}求 $W$ 的累积分布函数 (CDF) $F_W(t)$ 和概率密度函数 (PDF) $f_W(t)$。\\ %
+\textbf{几何意义：}$F_W(t)$ 等于半径为 $\sqrt{t}$ 的圆与边长为 2 的正方形 $[-1,1] \times [-1,1]$ 的交集面积，除以正方形总面积 (4)。由于 $V_{1,2} \sim U[-1,1]$，总面积 $W \in [0, 2]$。\\ %
+\textbf{Case 1：当 $t \in [0, 1]$ 时 (圆完全在正方形内):} \\ %
+$F_W(t) = \text{圆面积}/4 = \frac{\pi (\sqrt{t})^2}{4} = \frac{\pi t}{4}$ \\ %
+$f_W(t) = F_W'(t) = \frac{\pi}{4}$ \textit{(常数说明此时 $W$ 服从均匀分布)}\\ %
+\textbf{Case 2：当 $t \in (1, 2]$ 时 (圆超出边界):} \\ %
+\textbf{几何分解}：第一象限内的交集面积由 2 个三角形和 1 个扇形组成。\\ %
+\textbf{角度定义}：交点处设角 $\alpha$，满足 $\cos\alpha = \frac{1}{\sqrt{t}}$。扇形角 $\beta = \frac{\pi}{2} - 2\alpha$。\\ %
+\textbf{化简角度 $\beta$}：\\ %
+$\sin\beta = \cos(2\alpha) = 2\cos^2\alpha - 1 = \frac{2}{t} - 1$ \\ %
+$\quad \Rightarrow \beta = \arcsin(\frac{2}{t} - 1)$\\ %
+\textbf{面积累加}：\\ %
+两个三角形面积之和：$2 \times (\frac{1}{2} \cdot 1 \cdot \sqrt{t-1}) = \sqrt{t-1}$ \\ %
+扇形面积：$\frac{1}{2} (\sqrt{t})^2 \beta = \frac{t \cdot \arcsin(2/t - 1)}{2}$ \\ %
+\textbf{CDF:} $F_W(t) = \sqrt{t-1} + \frac{t \cdot \arcsin(2/t - 1)}{2}$ \\ %
+\textbf{PDF (一阶导数):} \\ %
+$f_W(t) = \frac{1}{2\sqrt{t-1}} + \frac{\arcsin(2/t-1)}{2} + \frac{t}{2} \cdot \frac{-2/t^2}{\sqrt{1-(2/t-1)^2}}$ \\ %
+$\quad$ \textit{(第三项化简为 $-\frac{1}{2\sqrt{t-1}}$，与第一项完美抵消！)} \\ %
+$\quad = \frac{\arcsin(2/t - 1)}{2}$ \textit{(最终 PDF 公式)} %
+
+\subsection*{5. 核心分布公式拆解：Gamma 伽马分布} %
+\textbf{物理意义：}事件发生率为 $\lambda$ 时，等待第 $\alpha$ 件事发生所花的时间 $y$。\textbf{本质：}$\alpha$ 个独立的指数分布相加 ($y = y_1 + y_2 + \dots + y_\alpha$)。\\ %
+\textbf{PDF 概率密度公式拆解：}$f(y) = \frac{e^{-\lambda y}y^{\alpha-1}}{\Gamma(\alpha)(1/\lambda)^\alpha}$。\\ %
+1. \textbf{衰减项 ($e^{-\lambda y}$)}：继承自指数分布，负责把曲线右边的尾巴死死按在 0 上。\\ %
+2. \textbf{爬升项 ($y^{\alpha-1}$)}：时间累积效应，负责把概率山峰往右推（不再紧贴Y轴）。\\ %
+3. \textbf{缩放常数 (分母)}：强行除以这个常数，是为了让曲线下的总面积缩放到完美的 1。\\ %
+阶乘转化：当 $\alpha$ 为整数时，$\Gamma(\alpha) = (\alpha - 1)!$。\\ %
+\textbf{退化特例：}当 $\alpha = 1$（只等1辆车）时，公式完美退化为指数分布的 $f(y) = \lambda e^{-\lambda y}$。\\ %
+\textbf{代码生成公式 (为何要连乘？):} \\ %
+脑图生成公式：$x = -\frac{1}{\lambda} \ln[ \prod_{i=1}^\alpha (1-u_i) ]$。\\ %
+原理解释：因为 Gamma 分布的 CDF 很难直接求反函数。我们利用它“等于 $\alpha$ 个指数分布相加”的特性生成。为了节省计算机算多次 $\ln$ 的算力，利用对数加法法则 $\ln(A)+\ln(B)=\ln(A \times B)$，把外面的连加变成了里面的连乘 $\prod$。 %
+
+\subsection*{6. 统计分布关系} %
+\textbf{终极法则：}整个统计分布家族有两大核心阵营：\textbf{Gamma 分布} (参数宏观降维) 和 \textbf{标准正态分布} (微观积木拼装)。它们通过 \textbf{卡方分布 ($\chi^2$)} 实现了完美的梦幻会师！ \\ %
+\myitem{家族一：Gamma分布系} \\ %
+\textbf{证明 1：卡方分布是特殊的 Gamma 分布:} 逻辑：令 Gamma 分布的 $\alpha = n/2$ 且 $\lambda = 1/2$。结论：代入化简后，与自由度为 $n$ 的卡方分布 $\chi^2(n)$ 公式完全一致！ \\ %
+\textbf{证明 2：自由度为 2 的卡方分布变成了指数分布:} 逻辑：把 $n=2$ 代入卡方分布 $\chi^2(2)$。结论：化简得到 $\frac{1}{2}e^{-\frac{1}{2}x}$，这其实就是一个 $\lambda = 1/2$ 的指数分布！ \\ %
+\textbf{证明 3：$\alpha=1$ 的 Gamma 分布退化为指数分布:} 逻辑：等 $\alpha=1$ 辆车，就是单纯的指数分布。代数：把 $\alpha=1$ 代入 Gamma 公式，因为 $\Gamma(1)=1$ 且 $x^0=1$，完美化简出 $\lambda e^{-\lambda x}$。\\ %
+\myitem{家族二：标准正态系 ($Z$)} \\ %
+\textbf{推导 1：卡方分布 ($\chi^2$) = 正态的“平方和”:} 逻辑：抓取 $n$ 个相互独立的标准正态变量 $X_1, X_2 \dots X_n$。拼装公式：$Y = X_1^2 + X_2^2 + \dots + X_n^2$ 就是自由度为 $n$ 的 $\chi^2$ 分布。关联点：2 个正态变量的平方和 ($\chi^2(2)$)，等价于 $\lambda=1/2$ 的指数分布！ \\ %
+\textbf{推导 2：F 分布 = 两个卡方的比值:} 逻辑：卡方 $Z_1$，卡方 $Z_2$。各自除以自由度后进行相除。拼装公式：$F = \frac{Z_1/m}{Z_2/n}$ (其中 $Z_1 \sim \chi^2(m), Z_2 \sim \chi^2(n)$) \\ %
+\textbf{推导 3：t 分布 = 正态/卡:} 逻辑：分子放纯正标准正态 $X$，分母放卡方变量开根号。拼装公式：$T = \frac{X}{\sqrt{Z/m}}$ (其中 $Z \sim \chi^2(m)$)。注释：因为分母引入了卡方带来的额外随机波动，导致 t 分布的“尾巴”比正态分布更厚，专治样本量小的不确定性。 %
+
+\subsection*{7. 蒙特卡洛方法 (Monte Carlo Method)} %
+\textbf{核心原理:} 通过在已知面积的边界区域内生成均匀分布的随机点，利用“落入目标区域的点数占比”来近似目标区域的面积或积分值。\\ %
+\textbf{实操步骤 (以计算圆面积为例):} 目标参数：圆心为 $(1, 2)$，半径为 $5$。\\ %
+\textbf{Step 1: 构造包围盒与分布函数:} 建立正方形边界：$x \in [-4, 6], y \in [-3, 7]$，正方形总面积为 $10 \times 10 = 100$。设定均匀分布的概率密度函数 (PDF)：$f_X(x) = \frac{1}{10}, f_Y(y) = \frac{1}{10}$。计算累积分布函数 (CDF)：$F_X(t) = \frac{1}{10}(t+4)$， $F_Y(t) = \frac{1}{10}(t+3)$。\\ %
+\textbf{Step 2: 生成随机坐标点:} 利用逆变换法，引入均匀随机数 $R_1, R_2 \sim U(0,1)$。映射至坐标轴：$x = 10R_1 - 4$，$y = 10R_2 - 3$。\\ %
+\textbf{Step 3: 面积近似计算:} 重复生成 $n$ 个随机点，统计落入圆内的点数 $m$。近似面积公式：$A = \frac{m}{n} \times \text{正方形面积} = \frac{m}{n} \times 100$。\\ %
+\textbf{实验评估与置信区间:} \textbf{方差收敛：}随着实验样本量 $N$ 的增加，估算结果的样本方差 $S^2$ 显著减小。\textbf{置信区间计算：}均值 $\bar{A}$ 的 $100(1-\alpha)\%$ 置信区间公式为：$\left[ \bar{A} - t_{\alpha/2, N-1}\frac{S}{\sqrt{N}}, \bar{A} + t_{\alpha/2, N-1}\frac{S}{\sqrt{N}} \right]$ %
+
+\subsection*{8. 泊松变量生成：算法流程} %
+\textbf{本质：}设定总时间 $t$ (如1.4)，频率 $\lambda$ (如3)。用 Gamma 分布逻辑不断累加时间，一旦总耗时刚超过 1.4，那在 1.4 之前发生的事件次数，就是 Poisson 变量 $X$。\\ %
+\textbf{算法循环流程 (Flowchart):} \\ %
+\textbf{1. 设死线 (Init)：}设总时间窗口 $t$ (如 $1.4$)，事件计数器 $n = 0$，当前总耗时 $T = 0$。\\ %
+\textbf{2. 抽间隔 (Gen)：}用指数分布抽下一个事件发生的间隔时间 $y_i = -\frac{1}{\lambda}\ln(U_i)$。\\ %
+\textbf{3. 累加时间 (Add)：}当前总耗时增加 ($T = T + y_i$)，事件计数器加一 ($n = n + 1$)。\\ %
+\textbf{4. 判超线 (Check)：}当前总耗时 $T > t$ 吗？ 否 (No)：时间还没到！回到 第2步 继续抽下一个间隔。 是 (Yes)：跳出循环，停止抽样。\\ %
+\textbf{5. 出结果 (Output)：}扣除最后那次“超时”的无效事件。最终泊松变量 $X = n - 1$。 %
+
+\section*{补充重难点: 泊松过程 (Poisson Process)} %
+
+\subsection*{1. 核心理论与齐次泊松过程 (Homogeneous)} %
+\myitem{计数过程 (Counting Process) 基础} \\ %
+$N(t) \ge 0$ 且必须为整数值。若 $s < t$，则必有 $N(s) \le N(t)$。$N(t) - N(s)$ 代表在区间 $(s, t]$ 内发生的事件数量。\\ %
+\textbf{独立增量 (Independent Increments)：}不相交的时间区间内，事件发生的数量相互独立。 %
+
+\myitem{Two Equivalent Definitions (等价定义)} \\ %
+\textbf{Def 1 (Macro / 宏观):} $N(0)=0$, Independent increments (独立增量)。Events in interval $t$ follow Poisson with mean $\lambda t$ (区间事件服从泊松分布)。Formula: $Pr\{N(t+s)-N(s)=n\} = \frac{e^{-\lambda t}(\lambda t)^n}{n!}$。\\ %
+\textbf{Def 2 (Micro / 微观):} $N(0)=0$, Stationary \& independent increments (平稳独立增量)。For infinitesimal time $h$ (极小时间增量 $h$)：\\ %
+$\circ$ $Pr\{N(h)=1\} = \lambda h + o(h)$: Prob. of exactly 1 event $\propto h$ (1次事件概率与 $h$ 正比), $\lambda$ is rate (速率)。\\ %
+$\circ$ $Pr\{N(h) \ge 2\} = o(h)$: Prob. of $\ge 2$ events $\to 0$ ($\ge 2$次事件概率趋于0)。$o(h)$ is higher-order infinitesimal (高阶无穷小)。 %
+
+\myitem{必考证明 1：由定义 2 推导定义 1 (MGF 矩母函数法)} \\ %
+\textbf{目标：}证明 $N(t)$ 的矩母函数 $g(t) = E[\exp\{uN(t)\}]$ 满足 $g(t) = \exp\{\lambda t(e^u - 1)\}$。\\ %
+\textbf{Part 1: 增量展开 (分离宏长时间 $t$ 与微小时间 $h$):} \\ %
+$g(t+h) = E[\exp\{uN(t+h)\}]$ \\ %
+$\quad = E[\exp\{u(N(t) + N(t+h) - N(t))\}]$ \textit{(加减同项做恒等变形)} \\ %
+$\quad = E[\exp\{uN(t)\}] \cdot E[\exp\{u(N(t+h) - N(t))\}]$ \textit{(利用独立增量拆分期望)} \\ %
+$\quad = g(t) \cdot E[\exp\{uN(h)\}]$ \textit{(利用平稳增量转化为 $N(h)$)} \\ %
+\textbf{Part 2: 微元期望展开 (代入定义 2 概率条件):} \\ %
+$E[\exp\{uN(h)\}] = \sum_{k=0}^{\infty} e^{uk} Pr\{N(h)=k\}$ \textit{(期望的定义展开)} \\ %
+$\quad = e^0 Pr\{N(h)=0\} + e^u Pr\{N(h)=1\} + o(h)$ \textit{(拆出前两项，剩余归入高阶无穷小)} \\ %
+$\quad = 1 \cdot [1 - \lambda h + o(h)] + e^u \cdot [\lambda h + o(h)] + o(h)$ \textit{(代入定义 2 的已知概率)} \\ %
+$\quad = 1 + \lambda h(e^u - 1) + o(h)$ \textit{(合并同类项)} \\ %
+\textbf{Part 3: 构造微分方程 (极限逼近):} \\ %
+$g(t+h) = g(t)[1 + \lambda h(e^u - 1) + o(h)]$ \textit{(将 Part 2 结论代回 Part 1)} \\ %
+$g(t+h) - g(t) = g(t)\lambda h(e^u - 1) + o(h)$ \textit{(展开括号并移项)} \\ %
+$\frac{g(t+h) - g(t)}{h} = g(t)\lambda(e^u - 1) + \frac{o(h)}{h}$ \textit{(等式两边同除以 $h$)} \\ %
+$\lim_{h \to 0} \frac{g(t+h) - g(t)}{h} = g(t)\lambda(e^u - 1) + 0$ \textit{(取 $h \to 0$ 极限)} \\ %
+$g'(t) = g(t)\lambda(e^u - 1) \implies \frac{g'(t)}{g(t)} = \lambda(e^u - 1)$ \textit{(得出标准微分方程)} \\ %
+\textbf{Part 4: 积分求解 (解出最终 DNA):} \\ %
+$\int_0^t \frac{g'(s)}{g(s)} ds = \int_0^t \lambda(e^u - 1) ds$ \textit{(两边同时进行定积分)} \\ %
+$\ln g(t) - \ln g(0) = \lambda t(e^u - 1)$ \textit{(算出积分结果)} \\ %
+$\ln g(t) - 0 = \lambda t(e^u - 1)$ \textit{(代入初始条件 $N(0)=0 \Rightarrow g(0)=1 \Rightarrow \ln(1)=0$)} \\ %
+$g(t) = \exp\{\lambda t(e^u - 1)\}$ \textit{(两边取指数，证明完毕)} %
+
+\myitem{时间属性与分布推导 (时空转换方程流)} \\ %
+\textbf{Part 1: 到达间隔 (Inter-arrival Time) $T_n$:} \\ %
+物理意义：第 $n-1$ 个事件与第 $n$ 个事件发生的时间间隔。\\ %
+推导 $T_1$ 的分布 (从发生次数推导时间): \\ %
+$Pr\{T_1 > t\} = Pr\{N(t) = 0\}$ \textit{(等价于在 0 到 t 时间内发生了 0 件事)} \\ %
+$\quad = \frac{e^{-\lambda t}(\lambda t)^0}{0!}$ \textit{(代入泊松分布公式 $n=0$)} \\ %
+$\quad = e^{-\lambda t}$ \textit{(这正是参数为 $\lambda$ 的指数分布的生存函数)}。\\ %
+Conclusion: All $T_n$ are i.i.d. $\sim Exp(\lambda)$ (独立同分布服从指数分布), Expected value $E[T_n] = 1/\lambda$ (期望)。\\ %
+\textbf{Part 2: 总等待时间 (Waiting Time) $S_n$ 与 CDF:} \\ %
+物理意义：第 $n$ 个事件发生的绝对总时间，即 $S_n = \sum_{i=1}^n T_i$。\\ %
+核心等价关系 (必背)：$S_n \le t \Leftrightarrow N(t) \ge n$ \textit{(第 n 件事在 t 时刻或之前发生 $\equiv$ t 时间内至少已经发生了 n 件事)}。\\ %
+推导 CDF (累积分布函数): \\ %
+$F_{S_n}(t) = Pr\{S_n \le t\} = Pr\{N(t) \ge n\}$ \textit{(利用上述等价关系进行时空转换)} \\ %
+$\quad = \sum_{j=n}^{\infty} Pr\{N(t) = j\}$ \textit{(将“至少 n 件”拆解为互斥事件概率之和)} \\ %
+$\quad = \sum_{j=n}^{\infty} \frac{e^{-\lambda t}(\lambda t)^j}{j!}$ \textit{(代入泊松分布公式)}。\\ %
+\textbf{Part 3: $S_n$ 的 PDF (概率密度函数):} \\ %
+推导：对上述的 CDF 等式两边同时对 $t$ 求导 ($f_{S_n}(t) = \frac{d}{dt} F_{S_n}(t)$)。\\ %
+最终公式：$f_{S_n}(t) = \lambda e^{-\lambda t} \frac{(\lambda t)^{n-1}}{(n-1)!}$。结论：这正是伽马分布的 PDF，故 $S_n \sim Gamma(n, \lambda)$。 %
+
+\myitem{事件分解 (Splitting) 及其证明 (Appendix I)} \\ %
+\textbf{属性：}若事件以概率 $p$ 归为 Type I，概率 $1-p$ 归为 Type II，则形成两个相互独立的泊松过程，速率分别为 $\lambda p$ 和 $\lambda(1-p)$。\\ %
+\textbf{联合概率推导方程流:} \\ %
+目标：证明联合概率等于各自泊松分布边缘概率的乘积，即证明过程的独立性与分布特性。\\ %
+推导连等式：\\ %
+$Pr\{N_1(t)=n, N_2(t)=m\}$ \\ %
+$\quad = \sum_{k=0}^{\infty} Pr\{N_1=n, N_2=m \mid N=k\} \cdot Pr\{N=k\}$ \textit{(全概率公式，引入总事件数 $k$ 作为条件)} \\ %
+$\quad = Pr\{N_1=n, N_2=m \mid N=n+m\} \cdot Pr\{N=n+m\}$ \textit{(因总数必须等于 $n+m$，其余项全为 0，无穷级数坍缩为单项)} \\ %
+$\quad = \left[ \binom{n+m}{n} p^n (1-p)^m \right] \cdot \left[ \frac{e^{-\lambda t}(\lambda t)^{n+m}}{(n+m)!} \right]$ \textit{(左侧转化为二项分布，右侧代入泊松分布)} \\ %
+$\quad = \frac{(n+m)!}{n! m!} p^n (1-p)^m \cdot \frac{e^{-\lambda t}(\lambda t)^{n+m}}{(n+m)!}$ \textit{(将组合数 $\binom{n+m}{n}$ 展开为阶乘形式)} \\ %
+$\quad = \frac{1}{n! m!} p^n (1-p)^m e^{-\lambda t} (\lambda t)^n (\lambda t)^m$ \textit{(分子分母完美约掉 $(n+m)!$，并拆分 $\lambda t$)} \\ %
+$\quad = \frac{1}{n! m!} p^n (1-p)^m e^{-\lambda p t} e^{-\lambda (1-p) t} (\lambda t)^n (\lambda t)^m$ \textit{(技巧：将 $e^{-\lambda t}$ 强行拆分为 $e^{-\lambda p t} \cdot e^{-\lambda (1-p) t}$)} \\ %
+$\quad = \left( \frac{e^{-\lambda p t} (\lambda p t)^n}{n!} \right) \cdot \left( \frac{e^{-\lambda(1-p)t} [\lambda(1-p)t]^m}{m!} \right)$ \textit{(按照 $n$ 和 $m$ 重新分组，见证奇迹)} \\ %
+$\quad = Pr\{N_1(t)=n\} \cdot Pr\{N_2(t)=m\}$ \textit{(证明完毕：不仅乘积证明了独立，且两部分均为标准泊松公式)} %
+
+\myitem{双过程竞争 (Competing Poisson Processes) 及其证明} \\ %
+\textbf{定义：}设有两个独立的泊松过程 $N_1(t)$ (速率 $\lambda_1$) 和 $N_2(t)$ (速率 $\lambda_2$)。\\ %
+\textbf{证明：首次事件发生的概率 (Base Case $n=1, m=1$):} \\ %
+目标：证明 $N_1$ 的首次事件早于 $N_2$ 发生的概率 $Pr\{S_1^1 < S_1^2\} = \frac{\lambda_1}{\lambda_1 + \lambda_2}$。\\ %
+Step 1 ：设 $X_1 \sim Exp(\lambda_1)$ 为 $N_1$ 的首个到达时间; $X_2 \sim Exp(\lambda_2)$ 为 $N_2$ 的首个到达时间。\\ %
+Step 2-4: 微积分推导核心公式连等式: \\ %
+$Pr\{X_1 < X_2\} = \int_0^\infty Pr\{X_1 < X_2 \mid X_1 = x\} \cdot f_{X_1}(x) \, dx$ \textit{(全概率展开)} \\ %
+$\quad = \int_0^\infty Pr\{x < X_2\} \cdot (\lambda_1 e^{-\lambda_1 x}) \, dx$ \textit{(代入 $X_1$ 密度函数)} \\ %
+$\quad = \int_0^\infty (e^{-\lambda_2 x}) \cdot (\lambda_1 e^{-\lambda_1 x}) \, dx$ \textit{(代入 $X_2$ 的生存函数)} \\ %
+$\quad = \lambda_1 \int_0^\infty e^{-(\lambda_1 + \lambda_2)x} \, dx$ \textit{(合并指数项)} \\ %
+$\quad = \lambda_1 \left[ \frac{e^{-(\lambda_1 + \lambda_2)x}}{-(\lambda_1 + \lambda_2)} \right]_0^\infty$ \textit{(求不定积分)} \\ %
+$\quad = \lambda_1 \left( 0 - \frac{1}{-(\lambda_1 + \lambda_2)} \right)$ \textit{(代入上下限 $\infty$ 和 $0$)} \\ %
+$\quad = \frac{\lambda_1}{\lambda_1 + \lambda_2}$ \textit{(证明完毕)}。\\ %
+\textbf{证明：一般情况 (General Case $n, m$):} \\ %
+目标：求 $N_1$ 在 $N_2$ 达到 $m$ 次事件前，率先达到 $n$ 次事件的概率 $Pr\{S_n^1 < S_m^2\}$。\\ %
+核心逻辑 (无记忆性转换)：基于泊松过程的无记忆性，不论之前发生了什么，每一次新发生的事件属于 $N_1$ 的概率独立且恒定为 $p = \frac{\lambda_1}{\lambda_1 + \lambda_2}$，属于 $N_2$ 的概率为 $\frac{\lambda_2}{\lambda_1 + \lambda_2}$。\\ %
+伯努利试验等价：这等价于不断抛掷一枚出现正面概率为 $p$ 的硬币，求“在出现 $m$ 次反面之前，先累计出现 $n$ 次正面的概率”。临界条件分析：上述事件成立的充要条件是：在总共的前 $n+m-1$ 次抛掷中，必然出现了 $n$ 次或更多次正面。\\ %
+计算公式：利用二项分布求和公式得出：$Pr\{S_n^1 < S_m^2\} = \sum_{k=n}^{n+m-1} \binom{n+m-1}{k} (\frac{\lambda_1}{\lambda_1+\lambda_2})^k (\frac{\lambda_2}{\lambda_1+\lambda_2})^{n+m-1-k}$。 %
+
+\myitem{必考证明 2：条件到达时间的均匀性 (次序统计量) (Appendix II)} \\ %
+目标: Given $N(t)=n$ events in $[0,t]$, prove their arrival times $S_1, \dots, S_n$ have joint PDF $\frac{n!}{t^n}$ (联合密度为 $\frac{n!}{t^n}$), matching order statistics of $n$ i.i.d. $U(0,t)$ variables (次序统计量)。\\ %\\ %
+推导 (联合密度方程流): 设时间序列满足：$0 < s_1 < s_2 < \dots < s_n < t$。 \\ %
+$f(s_1, \dots, s_n \mid n) = \frac{f(s_1, \dots, s_n, N(t)=n)}{Pr\{N(t)=n\}}$ \textit{(根据条件概率密度定义展开)} \\ %
+$\quad = \frac{f_{T_1}(s_1) \cdot f_{T_2}(s_2-s_1) \cdots f_{T_n}(s_n-s_{n-1}) \cdot Pr\{T_{n+1} > t-s_n\}}{Pr\{N(t)=n\}}$ \textit{(核心转化：把绝对时间 $S_i$ 转化为独立的时间间隔 $T_i$)} \\ %
+$\quad = \frac{(\lambda e^{-\lambda s_1}) \cdot (\lambda e^{-\lambda(s_2-s_1)}) \cdots (\lambda e^{-\lambda(s_n-s_{n-1})}) \cdot (e^{-\lambda(t-s_n)})}{Pr\{N(t)=n\}}$ \textit{(代入 $T_i \sim Exp(\lambda)$ 的密度函数，最后一项是到 $t$ 时刻未发生新事件的生存概率)} \\ %
+$\quad = \frac{\lambda^n \cdot e^{-\lambda[s_1 + (s_2-s_1) + \dots + (s_n-s_{n-1}) + (t-s_n)]}}{Pr\{N(t)=n\}}$ \textit{(提出所有的 $\lambda$，并将指数幂相加)} \\ %
+$\quad = \frac{\lambda^n e^{-\lambda t}}{Pr\{N(t)=n\}}$ \textit{(见证奇迹：括号里的中间项正负全部抵消，只剩下 $t$)} \\ %
+$\quad = \frac{\lambda^n e^{-\lambda t}}{\frac{e^{-\lambda t}(\lambda t)^n}{n!}}$ \textit{(将分母展开为标准的泊松分布概率公式)} \\ %
+$\quad = \frac{\lambda^n e^{-\lambda t} \cdot n!}{e^{-\lambda t} \lambda^n t^n} = \frac{n!}{t^n}$ \textit{(分子分母完美约掉所有的 $\lambda$ 和 $e^{-\lambda t}$，证明完毕)}。\\ %
+Physical Meaning: Result $\frac{n!}{t^n}$ is independent of $\lambda$ (与 $\lambda$ 无关)。Given $n$ events in $t$, their arrival times are uniformly distributed in $[0, t]$ (等价于在区间内均匀随机乱落)。 %
+
+\subsection*{2. 非齐次泊松过程 (Non-homogeneous)} %
+\textbf{核心差异：}打破了“平稳增量”假设，允许事件发生率随时间变化，记为强度函数 $\lambda(t)$。\\ %
+\textbf{均值函数 (Mean-value function)：}$m(t) = \int_0^t \lambda(s) ds$。其物理意义代表从时间 $0$ 到 $t$ 期间，预期发生的总事件数。 %
+
+\subsection*{3. 稀疏算法 (Thinning Algorithm / 拒绝采样法)} %
+\textbf{核心思想 (本质：宁可错杀一千，不可放过一个):} 痛点：计算机只会生成固定概率的随机数，无法直接生成速率随时间波动的非齐次泊松过程 $\lambda(t)$。策略：先用全天候的最高速率 $\lambda_{\max}$ 源源不断地盲目生成“候选事件”，然后根据该时刻的真实需求比例 $\frac{\lambda(t)}{\lambda_{\max}}$，通过掷骰子决定是“接受”还是“抛弃（Thinning）”。\\ %
+\textbf{算法完整循环流程 (Flowchart):} \\ %
+\textbf{Step 1: 确定天花板 (Init):} 在目标时间区间 $[0, T]$ 内，找出强度函数的最大值 $\lambda_{\max}$。初始化环境：当前时间 $t = 0$，有效事件计数器 $n = 0$。\\ %
+\textbf{Step 2: 提议下一个候选时间 (Propose):} 生成均匀分布随机数 $U_1 \sim U(0,1)$。利用最大速率生成指数间隔：$y = -\frac{1}{\lambda_{\max}} \ln(U_1)$。推进时间轴：令候选事件发生时间为 $t = t + y$。【越界判定】：如果 $t > T$，说明已经超出目标时间窗口，直接终止整个算法。\\ %
+\textbf{Step 3: 掷骰子决定去留 (Generate $U_2$):} 再生成一个全新的均匀分布随机数 $U_2 \sim U(0,1)$。\\ %
+\textbf{Step 4: 判定接受率 (Accept or Reject):} 计算接受概率 $p$ (核心计算公式): 公式：$p = \frac{\lambda(t_{\text{current}})}{\lambda_{\text{max}}}$, $t$为 step2 计算所得$t$,代入$\lambda(t)$得瞬时速率。 接受 (Accept)：如果 $U_2 \le p$，则该候选事件成为真实事件！操作：$n = n + 1$，记录该真实到达时间 $S_n = t$。随后回到 Step 2 找下一个人。 拒绝 (Reject / Thinning)：如果 $U_2 > p$，该事件被当作无效的“幻觉”抛弃掉。操作：什么都不记录，但时间 $t$ 不倒流，带着当前推进过的时间 $t$，直接回到 Step 2 抽下一个时间间隔。 %
+
+\section*{Chapter 4: 输出分析与方差缩减 (Output Analysis and VRT)} %
+
+\subsection*{1. 模拟输出的统计分析} %
+\textbf{核心痛点：}模拟运行出来的数据存在随机性，我们需要科学地估计总体参数，并决定“跑多少次才算准”。\\ %
+\myitem{基础估计量与贝塞尔校正 (Bessel's Correction)} \\ %
+直觉理解：算方差时，如果分母用 $n$，因为样本天生会向自己的均值 $\bar{X}$ 靠拢，会导致算出的方差“系统性偏小”。为了弥补损失的 1 个自由度，分母必须用 $n-1$ 才能做到无偏。\\ %
+\textbf{样本方差无偏性推导方程流：}证明 $E[S^2] = \sigma^2$。 \\ %
+$(n - 1)E[S^2] = E[\sum_{i=1}^n (X_i - \bar{X})^2]$ \textit{(移项，根据定义展开)} \\ %
+$\quad = E[\sum_{i=1}^n X_i^2 - 2\bar{X}\sum_{i=1}^n X_i + n\bar{X}^2]$ \textit{(完全平方展开)} \\ %
+$\quad = E[\sum_{i=1}^n X_i^2 - 2n\bar{X}^2 + n\bar{X}^2]$ \textit{(利用 $\sum X_i = n\bar{X}$ 替换中间项)} \\ %
+$\quad = nE[X_1^2] - nE[\bar{X}^2]$ \textit{(合并后两项，利用独立同分布拆出 $n$)} \\ %
+$\quad = n[Var(X_1) + (E[X_1])^2] - n[Var(\bar{X}) + (E[\bar{X}])^2]$ \textit{(核心转换：$E[X^2] = Var(X) + E[X]^2$)} \\ %
+$\quad = n[\sigma^2 + \theta^2] - n[\frac{\sigma^2}{n} + \theta^2]$ \textit{(代入总体方差 $\sigma^2$ 与样本均值方差 $\sigma^2/n$)} \\ %
+$\quad = n\sigma^2 + n\theta^2 - \sigma^2 - n\theta^2$ \textit{(展开括号)} \\ %
+$\quad = (n - 1)\sigma^2$ \textit{(抵消 $\theta$ 项，提取公因式 $\sigma^2$)} \\ %
+$\Rightarrow E[S^2] = \sigma^2$ \textit{(证明完毕)}。 %
+
+\myitem{动态更新：均值与方差递归 (必考证明题)} \\ %
+背景：写代码时，为避免有新数据就重新算一遍总和，用递归可极大节省算力。这也是实现“动态停止准则”的算力基础。\\ %
+\textbf{样本均值的递归推导:} 目标：$\bar{X}_{j+1} = \bar{X}_j + \frac{X_{j+1} - \bar{X}_j}{j+1}$。\\ %
+证明流：\\ %
+$\bar{X}_{j+1} = \frac{\sum_{i=1}^{j+1} X_i}{j+1}$ \textit{(根据均值定义展开)} \\ %
+$\quad = \frac{\sum_{i=1}^j X_i + X_{j+1}}{j+1}$ \textit{(拆分出最新的一项 $X_{j+1}$)} \\ %
+$\quad = \frac{j\bar{X}_j + X_{j+1}}{j+1}$ \textit{(代入旧均值定义 $\sum_{i=1}^j X_i = j\bar{X}_j$)} \\ %
+$\quad = \frac{(j+1)\bar{X}_j - \bar{X}_j + X_{j+1}}{j+1}$ \textit{(分子强行凑出 $j+1$ 以便提取)} \\ %
+$\quad = \bar{X}_j + \frac{X_{j+1} - \bar{X}_j}{j+1}$ \textit{(证明完毕)}。\\ %
+\textbf{核心桥梁公式 (为方差推导做准备):} 由上述均值公式移项得：$(j+1)\bar{X}_{j+1} = (j+1)\bar{X}_j + X_{j+1} - \bar{X}_j$。化简得出核心关系：$j(\bar{X}_{j+1} - \bar{X}_j) = X_{j+1} - \bar{X}_{j+1}$。两边平方并除以 $j$ 得到 (核心替换件 \*\*)：$\frac{(X_{j+1} - \bar{X}_{j+1})^2}{j} = j(\bar{X}_{j+1} - \bar{X}_j)^2$。\\ %
+\textbf{样本方差的递归推导:} 目标：$S_{j+1}^2 = (1 - \frac{1}{j})S_j^2 + (j+1)(\bar{X}_{j+1} - \bar{X}_j)^2$。\\ %
+证明流：\\ %
+$S_{j+1}^2 = \frac{1}{j}\sum_{i=1}^{j+1} (X_i - \bar{X}_{j+1})^2$ \textit{(根据样本方差定义，注意分母是 $j$)} \\ %
+$\quad = \frac{1}{j}\sum_{i=1}^{j+1} (X_i - \bar{X}_j + \bar{X}_j - \bar{X}_{j+1})^2$ \textit{(内部强行加减旧均值 $\bar{X}_j$ 凑项)} \\ %
+$\quad = \frac{1}{j}[ \sum (X_i - \bar{X}_j)^2 + 2\sum (X_i - \bar{X}_j)(\bar{X}_j - \bar{X}_{j+1}) + \sum (\bar{X}_j - \bar{X}_{j+1})^2 ]$ \textit{(完全平方展开为三项)} \\ %
+$\quad = \frac{1}{j}[ (j-1)S_j^2 + (X_{j+1} - \bar{X}_j)^2 + 2(X_{j+1} - \bar{X}_j)(\dots) + (j+1)(\bar{X}_j - \bar{X}_{j+1})^2 ]$ \textit{($\sum_{i=1}^j(X_i-\bar{X}_j)=0$消除前$j$个元素)} \\ %
+$\quad = \frac{j-1}{j}S_j^2 + \frac{1}{j}[ (X_{j+1} - \bar{X}_j) + (\bar{X}_j - \bar{X}_{j+1}) ]^2 + (\bar{X}_j - \bar{X}_{j+1})^2$ \textit{(利用 $(a+b)^2$ 逆向折叠散落项)} \\ %
+$\quad = (1 - \frac{1}{j})S_j^2 + \frac{1}{j}(X_{j+1} - \bar{X}_{j+1})^2 + (\bar{X}_j - \bar{X}_{j+1})^2$ \textit{(中括号内部正负抵消 $\bar{X}_j$)} \\ %
+$\quad = (1 - \frac{1}{j})S_j^2 + j(\bar{X}_{j+1} - \bar{X}_j)^2 + (\bar{X}_j - \bar{X}_{j+1})^2$ \textit{(代入上面的【核心替换件 \*\*】)} \\ %
+$\quad = (1 - \frac{1}{j})S_j^2 + (j+1)(\bar{X}_{j+1} - \bar{X}_j)^2$ \textit{(合并同类项，证明完毕)}。 %
+
+\myitem{工程核心：停止准则 (Stopping Rules)} \\ %
+痛点：到底跑多少次模拟，结果才算准？\\ %
+\textbf{方法一：基于标准误的动态停止 (Standard Error Control):} Step 1 定目标：设定一个可接受的误差上限 $d$。Step 2 强制预热：先无脑生成至少 30 个数据（为了让中心极限定理生效，保证 $S$ 有参考价值）。Step 3 达标刹车 (核心)：每多跑一次（第 $k$ 次），利用上面的递归公式瞬间更新标准差 $S$。一旦发现 $S/\sqrt{k} < d$，立即停止模拟！ Step 4 结果输出：将这 $k$ 个数据的均值 $\bar{X}$ 作为总体参数 $\theta$ 的最终估计。\\ %
+\textbf{方法二：针对离散概率模型 (Bernoulli 0-1 数据):} 若 $X_i$ 只有发生(1)或不发生(0)两种状态（目标是估算概率 $p$）。自身方差特性为 $p(1-p)$，天然可用样本估算，无需单独算 $S^2$。强制预热修改为：至少跑 100 次。停止条件修改为：$\sqrt{\frac{\bar{X}_k(1 - \bar{X}_k)}{k}} < d$。 %
+
+\myitem{Eliminating Autocorrelation \& Initial Bias (消除自相关与初始偏差)} \\ %
+\textbf{Pain Point 1: Autocorrelation (自相关性):} Data in a single long run are dependent (单次长模拟数据存在前后依赖), making standard $S^2/n$ biased (导致方差估计有偏)。Trad. Solution: Replication of Runs (独立重复运行) from zero with different seeds。\\ %
+\textbf{Pain Point 2: Initial Bias (初始偏差):} System cold starts bias the steady-state mean (冷启动拉低稳态均值)。Trad. Solution: Warm-up Deletion (删掉预热期) to discard initial unstable data。\\ %
+\textbf{Conflict (工程矛盾):} Replication requires multiple warm-up deletions, wasting computation (重复运行需删多次预热期，极大浪费算力)!\\ %
+\textbf{Sol 1: Batch Means (分批均值法):} One single long run, delete warm-up ONCE (单次超长模拟，只删一次预热)。Divide remaining data into $k$ large batches (剩余分 $k$ 大批)。Batch means $\bar{Y}_j$ are approx. independent (各批次均值近似独立), allowing standard variance formulas。\\ %
+\textbf{Sol 2: The Regenerative Approach (再生法):} For systems with natural cycles (具循环特性的系统), e.g., empty queue to empty queue is one Cycle (空队列到空队列)。Core Principle: Each cycle restarts from the exact same state, making data between cycles strictly i.i.d. (每次从相同状态重开，周期之间绝对独立同分布)。No warm-up deletion needed (无需删预热期)! Estimation (以估计平均逗留时间 $\theta$ 为例): Theory $\theta = \frac{E[D]}{E[N]}$ ($D$=total delay per cycle, $N$=total customers per cycle)。Estimator for $k$ cycles: $\hat{\theta} = \frac{\sum_{i=1}^k D_i}{\sum_{i=1}^k N_i}$ (所有周期总时间 $\div$ 总人数 $\rightarrow$ 精准无偏均值)。 %
+
+\subsection*{2. 方差缩减技术 (Variance Reduction Techniques, VRT)} %
+\textbf{核心思想：}估计量的均方误差 $\text{MSE} = E[(\bar{X} - \theta)^2] = \text{Var}(\bar{X}) = \frac{\text{Var}(X)}{n}$。在不增加模拟次数 $n$ 的前提下，通过干预随机数生成逻辑，强行压低单次输出的内部方差 $\text{Var}(X)$。\\ %
+
+\myitem{★ 核心前置概念：协方差 (Covariance) 扫盲} \\ %
+\textbf{通俗理解：}衡量两组数据是否“同频共振”。若 $X$ 变大时 $Y$ 也变大，则 $Cov>0$（正相关）；若一增一减，则 $Cov<0$（负相关）。完全没关系则 $Cov \approx 0$。\\ %
+\textbf{样本计算公式 (手算必背)：} $Cov(X, Y) = \frac{\sum_{i=1}^n (X_i - \bar{X})(Y_i - \bar{Y})}{n-1} = \frac{\sum_{i=1}^n X_i Y_i - n\bar{X}\bar{Y}}{n-1}$。\\ %
+
+\myitem{1. 对立变量 (Antithetic Variables)} \\ %
+\textbf{做法：}第一遍用随机数 $U$ 生成 $X_1 = h(U)$，第二遍坚决不用新随机数，而是直接用 $1-U$ 生成 $X_2 = h(1-U)$。\\ %
+\textbf{前提条件：}系统转换函数 $h$ 必须是单调的 (Monotone)。\\ %
+\textbf{方差缩减证明：} $\text{Var}\left(\frac{X_1 + X_2}{2}\right) = \frac{1}{4}[\text{Var}(X_1) + \text{Var}(X_2) + 2\text{Cov}(X_1, X_2)]$。因为 $U$ 和 $1-U$ 完全负相关，使得协方差 $\text{Cov}(X_1, X_2) < 0$，从而让两者的波动互相抵消，总方差大幅减小。\\ %
+
+\myitem{2. 控制变量 (Control Variates) - 必考最优化推导} \\ %
+\textbf{做法：}找一个期望已知 ($E[Y] = \mu_y$) 且与目标变量 $X$ 高度相关的辅助变量 $Y$。构造新无偏估计量：$X + c(Y - \mu_y)$。\\ %
+\textbf{最佳系数 $c^*$ 证明流：} \\ %
+目标方差：$\text{Var}(X + c(Y - \mu_y)) = \text{Var}(X + cY)$ \textit{(常数 $\mu_y$ 不影响方差)} \\ %
+$\quad = \text{Var}(X) + c^2\text{Var}(Y) + 2c\text{Cov}(X, Y)$ \textit{(展开方差公式)} \\ %
+设函数 $f(c) = \text{Var}(X) + c^2\text{Var}(Y) + 2c\text{Cov}(X, Y)$，对 $c$ 求一阶导并令其为 0： \\ %
+$f'(c) = 2c\text{Var}(Y) + 2\text{Cov}(X, Y) = 0$ \\ %
+解得极值点（最佳系数）：$c^* = -\frac{\text{Cov}(X, Y)}{\text{Var}(Y)}$ \textit{(证明完毕)}。\\ %
+\textbf{降维结果：}将 $c^*$ 代回原式，最小化后的方差为 $\text{Var}(X) - \frac{[\text{Cov}(X, Y)]^2}{\text{Var}(Y)}$。只要 $X$ 和 $Y$ 沾亲带故（$\text{Cov} \ne 0$），后半部分必为正，总方差必定减小！ \\ %
+
+\myitem{3. 公共随机数 (Common Random Numbers, CRN)} \\ %
+\textbf{做法：}在比较系统 A 和 B 哪个更好 ($Z = X - Y$) 时，强行给两个系统喂相同的随机数种子 (相同的环境输入)。\\ %
+\textbf{原理：}$\text{Var}(Z) = \text{Var}(X - Y) = \text{Var}(X) + \text{Var}(Y) - 2\text{Cov}(X, Y)$。使用相同种子会使两系统面对一模一样的“外界环境波动”，产生极强的正相关性 ($\text{Cov}(X, Y) > 0$)。完美抵消掉公式末尾的项，让 $Z$ 的方差急剧下降。\\ %
+
+\myitem{4. 分层抽样 (Stratified Sampling)} \\ %
+\textbf{做法：}已知系统存在不同概率的分支（如按 CDF 划分区间），不要让电脑盲抽，强行按照理论概率分配各分支的模拟名额。\\ %
+\textbf{原理证明：}利用条件方差公式 $\text{Var}(L) = E[\text{Var}(L|I)] + \text{Var}(E[L|I])$。因为任何变量的方差都大于等于0，故 $\text{Var}(E[L|I]) \ge 0$。因此，单纯的内部随机性 $E[\text{Var}(L|I)]$ 必然小于总方差 $\text{Var}(L)$。分层抽样相当于人为干预，直接抹除了外部因素 $I$ 带来的层间震荡 $\text{Var}(E[L|I])$。\\ %
+
+\myitem{5. 条件期望 (Conditioning) - 必考证明} \\ %
+\textbf{核心思想：}能用数学解析公式算出来的部分，绝对不用计算机去硬模拟。用条件期望 $E[X_2|X_1]$ 作为一个全新的随机变量来代替 $X_2$ 进行最终估计。\\ %
+\textbf{条件方差公式证明流 (证明为何条件期望的方差一定更小):} \\ %
+目标：证明 $\text{Var}(E[X_2|X_1]) \le \text{Var}(X_2)$。\\ %
+\textbf{Step 1 (构造辅助变量):} let $V = X_2 - E[X_2|X_1]$, \\$W = E[X_2|X_1] - E[X_2]$。 \\ %
+\textbf{Step 2 ($V$ 的条件期望):} $E[V|X_1] = E[X_2|X_1] - E[E[X_2|X_1] \mid X_1]$。因为 $E[X_2|X_1]$ 已经是 $X_1$ 的函数，所以 $E[V|X_1] = E[X_2|X_1] - E[X_2|X_1] = 0$。\\ %
+\textbf{Step 3 (证明交叉项为0):} 因为 $W$ 仅仅是 $X_1$ 的函数，提取出来：$E[VW] = E[E[VW|X_1]] = E[W \cdot E[V|X_1]] = E[W \cdot 0] = 0$。\\ %
+\textbf{Step 4 (展开原方差):} $\text{Var}(X_2) = E[(X_2 - E[X_2])^2] = E[(V + W)^2]$ \\ %
+$\quad = E[V^2] + E[W^2] + 2E[VW] = E[V^2] + E[W^2] + 0$ \\ %
+\textbf{Step 5 (化简得出终局):} 观察 $E[W^2]$，它正是 $E[(E[X_2|X_1] - E[X_2])^2]$，即 $\text{Var}(E[X_2|X_1])$。代回得：$\text{Var}(X_2) = E[V^2] + \text{Var}(E[X_2|X_1])$。\\ %
+因为平方的期望必非负 ($E[V^2] \ge 0$)，所以 $\text{Var}(X_2) \ge \text{Var}(E[X_2|X_1])$ %
+
+\subsection*{3. 方差缩减技术 - 计算题流水线 (Flow)} %
+\textbf{题型特征：}给定一个要估计的期望/积分目标和一组随机数 $U(0,1)$，要求分别用不同方法算出估计值。计算前必须先算出逆变换公式 $X = F^{-1}(U)$。\\ %
+
+\myitem{Flow 1: 基础蒙特卡洛法 (Crude Monte Carlo)} \\ %
+\textbf{Step 1 代入公式:} 将给定的每一组随机数 $U_i$ 代入 $X = F^{-1}(U)$ 算出对应的 $X_i$。 \\ %
+\textbf{Step 2 算术平均:} 直接求所有 $X_i$ 的平均值，即最终结果 $\hat{\theta} = \frac{1}{n} \sum X_i$。\\ %
+
+\myitem{Flow 2: 对立变量法计算 (Antithetic Variables)} \\ %
+\textbf{Step 1 正向跑一遍:} 用给定的 $U_i$ 算出 $X_i$。\\ %
+\textbf{Step 2 反向跑一遍:} 用 $1-U_i$ 替代 $U_i$ 算出对立变量 $X_i'$。\\ %
+\textbf{Step 3 合并求均值:} 分别求出 $\bar{X}$ 和 $\bar{X}'$，最终结果 $\hat{\theta} = \frac{\bar{X} + \bar{X}'}{2}$。\\ %
+
+\myitem{Flow 3: 分层抽样法计算 (Stratified Sampling)} \\ %
+\textbf{题干识别：}要求把 $U$ 分为 $k$ 个特定区间（如 $0-0.6, 0.6-0.9, 0.9-1.0$），且每个区间给定了分配的随机数量。区间宽度就是理论概率 $p_j$ (如 $0.6, 0.3, 0.1$)。\\ %
+\textbf{Step 1 随机数强行映射:} 把给定的 $U$ 拉伸映射到它所属的目标区间 $[a, b]$ 内。映射公式：$U' = a + (b-a)U$。\\ %
+\textbf{Step 2 计算各层产出:} 用映射后的 $U'$ 计算出每一层所有样本的 $X_i$，并求出该层的平均值 $\bar{X}_j$。\\ %
+\textbf{Step 3 理论权重汇总:} 不要直接求总平均！必须按理论概率加权：最终结果 $\hat{\theta} = \sum_{j=1}^k p_j \bar{X}_j$。\\ %
+
+\myitem{Flow 4: 控制变量法计算 (Control Variates)} \\ %
+\textbf{题干识别：}不仅给定了目标函数 $X$，还给了一个已知的辅助函数 $Y$ 以及 $Y$ 的理论期望值 $\mu_y$。\\ %
+\textbf{Step 1 算数据:} 针对每个 $U_i$，分别算出 $X_i$ 和 $Y_i$。\\ %
+\textbf{Step 2 算均值:} 算出 $\bar{X}$ 和 $\bar{Y}$。\\ %
+\textbf{Step 3 算方差与协方差 (列表手算):} \\ %
+- $Y$的样本方差: $\text{Var}(Y) = \frac{\sum (Y_i - \bar{Y})^2}{n-1}$ \\ %
+- $XY$的样本协方差: $\text{Cov}(X,Y) = \frac{\sum (X_i - \bar{X})(Y_i - \bar{Y})}{n-1}$ \\ %
+\textbf{Step 4 算最佳系数:} 代入公式 $c^* = -\frac{\text{Cov}(X,Y)}{\text{Var}(Y)}$。\\ %
+\textbf{Step 5 终极组装:} 最终估算结果 $\hat{\theta} = \bar{X} + c^*(\bar{Y} - \mu_y)$。 %
+
+\end{multicols*}
+\end{document}
