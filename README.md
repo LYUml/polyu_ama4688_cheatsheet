@@ -1,5 +1,11 @@
 # AMA4688 Cheatsheet
 
+[View / download PDF](ama4688cheatsheet.pdf)
+
+[![AMA4688 cheatsheet - page 1](assets/ama4688cheatsheet-page-1.png)](ama4688cheatsheet.pdf)
+
+[![AMA4688 cheatsheet - page 2](assets/ama4688cheatsheet-page-2.png)](ama4688cheatsheet.pdf)
+
 A comprehensive LaTeX cheatsheet for AMA4688.
 
 ## Overview
